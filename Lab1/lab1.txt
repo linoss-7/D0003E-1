@@ -1,0 +1,17 @@
+/*
+ * Lab1.c
+ *
+ */ 
+
+#include <avr/io.h>
+
+
+int main(void) {
+	#define CLKPR;
+	CLKPR = 0x80;
+	CLKPR = 0x00;
+    /* Replace with your application code */
+    while (1) {
+		
+    }
+}
