@@ -2,16 +2,25 @@
  * Lab1.c
  *
  */ 
-
 #include <avr/io.h>
+#define WRITE_CLKPR(val) ((*(volatile uint32_t *)CLKPR) = (val))
 
 
-int main(void) {
-	#define CLKPR;
-	CLKPR = 0x80;
-	CLKPR = 0x00;
-    /* Replace with your application code */
-    while (1) {
-		
+int main(void)
+{
+WRITE_CLKPR = (0x80);
+WRITE_CLKPR = (0x00);
+	
+	while (1) 
+    {
+			
     }
+}
+
+void writeChar(char ch, int pos){
+	
+}
+	
+void LCD_Init(void){
+	
 }
