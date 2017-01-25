@@ -4,6 +4,8 @@
  */ 
 
 #include <avr/io.h>
+#include <stdlib.h>
+
 
 void LCD_Init(void) {
 	// LCD enabled, low power waveform, no frame interrupt, no blanking
@@ -21,35 +23,65 @@ void writeChar(char ch, int pos) {
 	char lcddr = 0xEC;
 	int SCCTable[10] =  {0x1551, 0x0110, 0x1e11, 0x1B11, 0x0B50, 0x1B41, 0x1F41, 0x0111, 0x1F51, 0x0B51};
 	int sccChar = 0x0000;
-	char nibble = 0x0;
-	
-	if (pos < 0 || pos > 5) {
-		return;
-	}
-	
-	if (pos % 2 == 0) {
-		mask = 0x0F;
-		} else {
-		mask = 0xF0;
-	}
+	char nibble = 0x00;
 
 	if (ch < 0 || ch > 9) {
 		return;
 	}
+
+	sccChar = SCCTable[(int) ch];
 	
-	sccChar = SCCTable[ch];
-	lcddr += pos;
+	if (pos % 2 == 0) {
+		mask = 0xF0;
+	} else {
+		mask = 0x0F;
+	}
+
+	if (pos < 0 || pos > 5) {
+		return;
+	}
 	
+	// startvärde lcddr	
+
 	for (int i = 0; i < 4; i++) {
-		nibble = sccChar & 0x1;
+		nibble = sccChar & 0x000f;
 		sccChar = sccChar >> 4;
 		
-		if (pos % 2 == 0) {
+		if (pos  % 2 == 0) {
 			nibble = nibble << 4;
 		}
-		
-		_SFR_MEM8(lcddr) = ((_SFR_MEM8(lcddr) & mask) | nibble);
+
+		// värde på det lcddr pekar på		
 		lcddr += 5;
+	}
+}
+
+void writeLong(long i) {
+	int pos = 0;
+	while (i > 0 || pos < 6) {
+		int ch = i % 10;
+		writeChar(ch, pos);
+		pos++;
+		i = i / 10;
+	}
+}
+
+int is_prime(long i) {
+	for (int n = i-1; n >= 2; n--) {
+		if (i % n == 0 && i != n) {
+			return 0;
+		}
+	}
+	return 1;
+}
+
+void primes(void) {
+	while (1) {
+		long i = 2;
+		if (is_prime(i)) {
+			writeLong(i);
+		}
+		i++;
 	}
 }
 
