@@ -16,6 +16,7 @@ void LCD_Init(void) {
 	LCDFRR = (1 << LCDCD0) | (1 << LCDCD1) | (1 << LCDCD2);
 	// drive time 300 microseconds, contrast control voltage 3.35 V
 	LCDCCR = (1 << LCDCC0) | (1 << LCDCC1) | (1 << LCDCC2) | (1 << LCDCC3);
+	
 }
 
 void writeChar(char ch, int pos) {
@@ -42,26 +43,28 @@ void writeChar(char ch, int pos) {
 	}
 	
 	// startvärde lcddr	
+	lcddr += pos >> 1;
 
 	for (int i = 0; i < 4; i++) {
 		nibble = sccChar & 0x000f;
 		sccChar = sccChar >> 4;
 		
-		if (pos  % 2 == 0) {
+		if (pos  % 2 != 0) {
 			nibble = nibble << 4;
 		}
 
-		// värde på det lcddr pekar på		
+		// värde på det lcddr pekar på
+		_SFR_MEM8(lcddr) = (_SFR_MEM8(lcddr) & mask) | nibble;		
 		lcddr += 5;
 	}
 }
 
 void writeLong(long i) {
-	int pos = 0;
-	while (i > 0 || pos < 6) {
+	int pos = 5;
+	while (i > 0) {
 		int ch = i % 10;
 		writeChar(ch, pos);
-		pos++;
+		pos--;
 		i = i / 10;
 	}
 }
@@ -76,12 +79,27 @@ int is_prime(long i) {
 }
 
 void primes(void) {
+	long i = 2;
 	while (1) {
-		long i = 2;
 		if (is_prime(i)) {
 			writeLong(i);
 		}
 		i++;
+	}
+}
+
+void blink(void) {
+	TCCR1B = (1 << CS12) | (0 << CS11) | (0 << CS10);
+	
+	while (1) {
+		while (TCNT1 != 0) {
+			int lcddr = 0xEC;
+			_SFR_MEM8(lcddr) = _SFR_MEM8(lcddr) | 0x6;
+		}
+		while (TCNT1 != 0) {
+			int lcddr = 0xEC;
+			_SFR_MEM8(lcddr) = _SFR_MEM8(lcddr) & 0x9;
+		}
 	}
 }
 
@@ -94,6 +112,7 @@ int main(void) {
 	LCD_Init();
 	
 	while (1) {
-		writeChar(1, 0);	
+		//writeLong(1234567);
+		blink();
     }
 }
