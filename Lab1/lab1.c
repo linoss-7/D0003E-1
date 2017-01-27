@@ -22,34 +22,39 @@ void LCD_Init(void) {
 void writeChar(char ch, int pos) {
 	char mask = 0x00;
 	char lcddr = 0xEC;
-	int SCCTable[10] =  {0x1551, 0x0110, 0x1e11, 0x1B11, 0x0B50, 0x1B41, 0x1F41, 0x0111, 0x1F51, 0x0B51};
-	int sccChar = 0x0000;
+	uint16_t SCCTable[10] =  {0x1551, 0x0110, 0x1e11, 0x1B11, 0x0B50, 0x1B41, 0x1F41, 0x0111, 0x1F51, 0x0B51};
+	uint16_t sccChar = 0x0000;
 	char nibble = 0x00;
-
+	
+	// checks if ch is in 0..9
 	if (ch < 0 || ch > 9) {
 		return;
 	}
-
+	
+	// get the scc value from our scc table
 	sccChar = SCCTable[(int) ch];
 	
+	// decides which mask is used depending on if the desired position is even or not
 	if (pos % 2 == 0) {
 		mask = 0xF0;
 	} else {
 		mask = 0x0F;
 	}
-
+	
+	// checks if the desired position is in 0..5
 	if (pos < 0 || pos > 5) {
 		return;
 	}
 	
-	// startvärde lcddr	
+	// 5, 4 >> LCDDR2 and 3, 2 >> LCDDR1 and 1, 0 >> LCDDR0
 	lcddr += pos >> 1;
-
+	
+	// use our 4 nibbles to show the desired number at the desired position
 	for (int i = 0; i < 4; i++) {
 		nibble = sccChar & 0x000f;
 		sccChar = sccChar >> 4;
 		
-		if (pos  % 2 != 0) {
+		if (pos % 2 != 0) {
 			nibble = nibble << 4;
 		}
 
@@ -90,16 +95,81 @@ void primes(void) {
 
 void blink(void) {
 	TCCR1B = (1 << CS12) | (0 << CS11) | (0 << CS10);
+	uint16_t timerValue = 0xFFFF / 2;
+	uint8_t check = 0;
 	
 	while (1) {
-		while (TCNT1 != 0) {
-			int lcddr = 0xEC;
-			_SFR_MEM8(lcddr) = _SFR_MEM8(lcddr) | 0x6;
+		if (TCNT1 >= timerValue && check == 0) {
+			check == 1;
+			if (LCDDR0 != 0) {
+				LCDDR0 = 0x0;
+			} else {
+				LCDDR0 = 0x6;
+			}
 		}
-		while (TCNT1 != 0) {
-			int lcddr = 0xEC;
-			_SFR_MEM8(lcddr) = _SFR_MEM8(lcddr) & 0x9;
+		
+		if (TCNT1 < timerValue) {
+			check = 0;
 		}
+	}
+}
+
+void button(void) {
+	PORTB = 0x80;
+	uint8_t previousButton = 0;
+	
+	while (1) {
+		if ( (PINB >> 7) == 1 && previousButton == 0) {
+			LCDDR1 = 0x2;
+			LCDDR2 = 0x0;
+			previousButton = 1;
+		} if ( (PINB >> 7) == 0  && previousButton == 1) {
+			LCDDR2 = 0x4;
+			LCDDR1 = 0x0;
+			previousButton = 0;
+		}
+	}
+}
+
+void combine(long number) {
+	PORTB = 0x80;
+	TCCR1B = (1 << CS12) | (0 << CS11) | (0 << CS10);
+	uint16_t timerValue = 0xFFFF / 2;
+	uint8_t previousButton = 0;
+	TCNT1 = 0x0000;
+	uint8_t check = 0;
+	
+	while (1) {
+	
+		if ( (PINB >> 7) == 1 && previousButton == 0) {
+			LCDDR18 = 0x1;
+			LCDDR13 = 0x0;
+			previousButton = 1;
+		} if ( (PINB >> 7) == 0  && previousButton == 1) {
+			LCDDR13 = 0x1;
+			LCDDR18 = 0x0;
+			previousButton = 0;
+		}
+		
+		if (is_prime(number)) {
+			writeLong(number);
+		}
+		
+		if (TCNT1 >= timerValue && check == 0) {
+			check = 1;
+			if (LCDDR3 != 0) {
+				LCDDR3 = 0x0;
+				} else {
+				LCDDR3 = 0x1;
+			}
+		}
+		
+		if (TCNT1 < timerValue) {
+			check = 0;
+		}
+		
+		number++;
+		
 	}
 }
 
@@ -112,7 +182,11 @@ int main(void) {
 	LCD_Init();
 	
 	while (1) {
+		//writeChar(3, 4);
 		//writeLong(1234567);
-		blink();
+		//primes()
+		//blink()
+		//button();
+		combine(2);
     }
 }
