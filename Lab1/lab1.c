@@ -100,12 +100,17 @@ void primes(void) {
 void blink(void) {
 	// makes a segment of the lcd blink
 	TCCR1B = (1 << CS12) | (0 << CS11) | (0 << CS10); // prescaling factor 256
-	uint16_t timerValue = 0xFFFF / 2;
+	uint16_t timerValue = 8000000/256;
 	uint8_t check = 0; // a check which sees when a segment has been turned off/on and if it has passes 0 after doing so
 	
 	while (1) {
 		if (TCNT1 >= timerValue && check == 0) {
-			check == 1; // set check to 1 to know that we've already fixed the display
+			check = 1; // set check to 1 to know that we've already fixed the display
+			if (timerValue + 8000000/256 > 0xFFFF) {
+				timerValue = timerValue + 8000000/256 - 0xFFFF;
+			} else {
+				timerValue = timerValue + 8000000/256;
+			}
 			if (LCDDR0 != 0) { // if the display is on and we've passed timerValue, turn it off
 				LCDDR0 = 0x0;
 			} else { // if the display is off and we've passed timerValue, turn it on
@@ -122,17 +127,23 @@ void blink(void) {
 void button(void) {
 	PORTB = 0x80; // set bit 7 to 1
 	uint8_t previousButton = 0; // remember which button that was used last
+	uint8_t hold = 0;
+	LCDDR2 = 0x4;
 	
 	while (1) {
-		if ( (PINB >> 7) == 1 && previousButton == 0) { // if the button is in the middle and last time the button was down
+		if (hold == 0 && PINB >> 7 == 0 && previousButton == 0) {
 			LCDDR1 = 0x2;
 			LCDDR2 = 0x0;
 			previousButton = 1;
-		} if ( (PINB >> 7) == 0  && previousButton == 1) { // if the button is down and last time the button was in the middle
+			hold = 1;
+		} else if (hold == 0 && PINB >> 7 == 0 && previousButton == 1) {
 			LCDDR2 = 0x4;
 			LCDDR1 = 0x0;
 			previousButton = 0;
-		}
+			hold = 1;
+		} else if (PINB >> 7 == 1) {
+			hold = 0;
+		} 
 	}
 }
 
@@ -140,22 +151,28 @@ void combine(long number) {
 	// combines primes, blink and button into one function
 	PORTB = 0x80;
 	TCCR1B = (1 << CS12) | (0 << CS11) | (0 << CS10);
-	uint16_t timerValue = 0xFFFF / 2;
+	uint16_t timerValue = 8000000/256;
 	uint8_t previousButton = 0; 
 	uint8_t check = 0;
+	LCDDR13 = 0x1;
+	uint8_t hold = 0;
 	
 	while (1) {
 	
 		// button
-		if ( (PINB >> 7) == 1 && previousButton == 0) {
+		if (hold == 0 && PINB >> 7 == 0 && previousButton == 0) {
 			LCDDR18 = 0x1;
 			LCDDR13 = 0x0;
 			previousButton = 1;
-		} if ( (PINB >> 7) == 0  && previousButton == 1) {
+			hold = 1;
+		} else if (hold == 0 && PINB >> 7 == 0 && previousButton == 1) {
 			LCDDR13 = 0x1;
 			LCDDR18 = 0x0;
 			previousButton = 0;
-		}
+			hold = 1;
+		} else if (PINB >> 7 == 1) {
+			hold = 0;
+		}	
 		
 		// primes
 		if (is_prime(number)) {
@@ -164,16 +181,21 @@ void combine(long number) {
 		
 		// blink
 		if (TCNT1 >= timerValue && check == 0) {
-			check = 1;
-			if (LCDDR3 != 0) {
-				LCDDR3 = 0x0;
+			check = 1; // set check to 1 to know that we've already fixed the display
+			if (timerValue + 8000000/256 > 0xFFFF) {
+				timerValue = timerValue + 8000000/256 - 0xFFFF;
 				} else {
-				LCDDR3 = 0x1;
+				timerValue = timerValue + 8000000/256;
+			}
+			if (LCDDR0 != 0) { // if the display is on and we've passed timerValue, turn it off
+				LCDDR0 = 0x0;
+				} else { // if the display is off and we've passed timerValue, turn it on
+				LCDDR0 = 0x6;
 			}
 		}
 		
 		if (TCNT1 < timerValue) {
-			check = 0;
+			check = 0; // set check to 0 to know that the cycle has passed
 		}
 		
 		number++;
@@ -191,8 +213,8 @@ int main(void) {
 	while (1) {
 		//writeChar(3, 4);
 		//writeLong(1234567);
-		//primes()
-		//blink()
+		//primes();
+		//blink();
 		//button();
 		combine(2);
     }
