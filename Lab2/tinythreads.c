@@ -34,7 +34,10 @@ static void initialize(void) {
 	for (i=0; i<NTHREADS-1; i++)
 	threads[i].next = &threads[i+1];
 	threads[NTHREADS-1].next = NULL;
-
+	EIMSK = 1 << PCIE1;
+	PCMSK1 = 1 << PCINT15;
+	PORTB = 0x80;
+	
 
 	initialized = 1;
 }
@@ -93,8 +96,8 @@ void spawn(void (* function)(int), int arg) {
 }
 
 void yield(void) {
-	//enqueue(current, &readyQ);
-	//dispatch(dequeue(&readyQ));
+	enqueue(current, &readyQ);
+	dispatch(dequeue(&readyQ));
 }
 
 void lock(mutex *m) {
@@ -103,4 +106,10 @@ void lock(mutex *m) {
 
 void unlock(mutex *m) {
 
+}
+
+ISR(PCINT1_vect) {
+	if (PINB >> 7 == 0) {
+		yield();
+	}
 }
