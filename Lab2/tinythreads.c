@@ -20,7 +20,6 @@ struct thread_block {
 };
 
 struct thread_block threads[NTHREADS];
-
 struct thread_block initp;
 
 thread freeQ   = threads;
@@ -34,12 +33,22 @@ static void initialize(void) {
 	for (i=0; i<NTHREADS-1; i++)
 	threads[i].next = &threads[i+1];
 	threads[NTHREADS-1].next = NULL;
-	EIMSK = 1 << PCIE1;
-	PCMSK1 = 1 << PCINT15;
-	PORTB = 0x80;
 	
-
 	initialized = 1;
+	
+	// our code
+	// enables the logical interrupt source PCINT15
+	EIMSK = (1 << PCIE1);
+	PCMSK1 = (1 << PCINT15);
+	
+	PORTB = 0x80; // activates a pull-up resistor
+	
+	
+	TCCR1A = (1 << COM1A1) | (1 << COM1A0); // sets OC1A high on compare match
+	TCCR1B = (1 << WGM12) | (1 << CS12) | (1 << CS10); // set the timer to Clear on Timer Compare and set timer prescaler factor to 1024
+	OCR1A = 8000000/20480; // set a suitable value to OCR1A
+	TCNT1 = 0x0; // clears the TCNT1 register
+	TIMSK1 = (1 << OCIE1A); // enables timer output compare A interrupts
 }
 
 static void enqueue(thread p, thread *queue) {
@@ -101,15 +110,23 @@ void yield(void) {
 }
 
 void lock(mutex *m) {
-
+	DISABLE();
+	if (m->locked == NULL) {
+		m->locked = 1;
+	} else {
+		enqueue(current, &(m->waitQ));
+		dispatch(dequeue(&readyQ));
+	}
+	ENABLE();
 }
 
 void unlock(mutex *m) {
-
-}
-
-ISR(PCINT1_vect) {
-	if (PINB >> 7 == 0) {
-		yield();
+	DISABLE();
+	if (m->waitQ != NULL) {
+		enqueue(current, &readyQ);
+		dispatch(dequeue(&(m->waitQ)));
+	} else {
+		m->locked = NULL;
 	}
+	ENABLE();
 }

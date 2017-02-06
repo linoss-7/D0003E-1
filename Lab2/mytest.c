@@ -1,6 +1,9 @@
 #include "tinythreads.h"
 #include <avr/io.h>
 #include <ctype.h>
+#include <avr/interrupt.h>
+
+int pp;
 
 void LCD_Init(void) {
 	// LCD enabled, low power waveform, no frame interrupt, no blanking
@@ -79,7 +82,7 @@ int is_prime(long i) {
 
 void printAt(long num, int pos) {
 	// yield(); --Part 1--
-	int pp = pos;
+	pp = pos;
 	writeChar( (num % 100) / 10 + '0', pp);
 	pp++;
 	writeChar( num % 10 + '0', pp);
@@ -93,6 +96,18 @@ void computePrimes(int pos) {
 			printAt(n, pos);
 		}
 	}
+}
+
+// Defines interrupt handler for PCINT1_vect
+ISR(PCINT1_vect) {
+	if (PINB >> 7 == 0) { // maskes sure that the button is actually depressed
+		yield();
+	}
+}
+
+// Defines timer interrupt for TIMER1_COMPA_vect
+ISR(TIMER1_COMPA_vect) {
+	yield();
 }
 
 int main() {
