@@ -1,5 +1,7 @@
 /*
- * Lab1.c
+ * Lab 1
+ * Robin Andersson, roband-5
+ * Linus Arvidsson, linarv-4
  *
  */ 
 

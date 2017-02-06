@@ -1,3 +1,11 @@
+/*
+*
+* Lab 2
+* Robin Andersson, roband-5
+* Linus Arvidsson, linarv-4
+*
+*/
+
 #include "tinythreads.h"
 #include <avr/io.h>
 #include <ctype.h>
