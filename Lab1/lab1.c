@@ -25,14 +25,19 @@ void writeChar(char ch, int pos) {
 	uint16_t SCCTable[10] =  {0x1551, 0x0110, 0x1e11, 0x1B11, 0x0B50, 0x1B41, 0x1F41, 0x0111, 0x1F51, 0x0B51};
 	uint16_t sccChar = 0x0000;
 	char nibble = 0x00;
+	int8_t number = 0;
 	
 	// checks if ch is in 0..9
-	if (ch < 0 || ch > 9) {
+	if (isdigit(ch)) {
+		number = ch - '0';
+	} else if (ch <= 9 && ch >= 0) {
+		number = ch;
+	} else {
 		return;
 	}
 	
 	// get the scc value from our scc table
-	sccChar = SCCTable[(int) ch];
+	sccChar = SCCTable[number];
 	
 	// decides which mask is used depending on if the desired position is even or not
 	if (pos % 2 == 0) {
