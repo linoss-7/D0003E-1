@@ -37,6 +37,11 @@ static void initialize(void) {
 	initialized = 1;
 	
 	// our code
+	
+	// disables clock prescaler
+	CLKPR = 0x80;
+	CLKPR = 0x00;
+	
 	// enables the logical interrupt source PCINT15
 	EIMSK = (1 << PCIE1);
 	PCMSK1 = (1 << PCINT15);
@@ -49,6 +54,15 @@ static void initialize(void) {
 	OCR1A = 8000000/20480; // set a suitable value to OCR1A
 	TCNT1 = 0x0; // clears the TCNT1 register
 	TIMSK1 = (1 << OCIE1A); // enables timer output compare A interrupts
+	
+	// LCD enabled, low power waveform, no frame interrupt, no blanking
+	LCDCRA = (1 << LCDEN) | (1 << LCDAB);
+	// external asynchronous clock source, 1/3 bias, 1/4 duty cycle, 25 segments enabled
+	LCDCRB = (1 << LCDCS) | (1 << LCDMUX0) | (1 << LCDMUX1) | (1 << LCDPM0) | (1 << LCDPM1) | (1 << LCDPM2);
+	// prescaler setting N=16, clock divider setting D=8
+	LCDFRR = (1 << LCDCD0) | (1 << LCDCD1) | (1 << LCDCD2);
+	// drive time 300 microseconds, contrast control voltage 3.35 V
+	LCDCCR = (1 << LCDCC0) | (1 << LCDCC1) | (1 << LCDCC2) | (1 << LCDCC3);
 }
 
 static void enqueue(thread p, thread *queue) {
@@ -111,7 +125,7 @@ void yield(void) {
 
 void lock(mutex *m) {
 	DISABLE();
-	if (m->locked == NULL) {
+	if (m->locked == 0) {
 		m->locked = 1;
 	} else {
 		enqueue(current, &(m->waitQ));
@@ -126,7 +140,19 @@ void unlock(mutex *m) {
 		enqueue(current, &readyQ);
 		dispatch(dequeue(&(m->waitQ)));
 	} else {
-		m->locked = NULL;
+		m->locked = 0;
 	}
 	ENABLE();
+}
+
+// Defines interrupt handler for PCINT1_vect
+ISR(PCINT1_vect) {
+	if (PINB >> 7 == 0) { // maskes sure that the button is actually depressed
+		yield();
+	}
+}
+
+// Defines timer interrupt for TIMER1_COMPA_vect
+ISR(TIMER1_COMPA_vect) {
+	yield();
 }
