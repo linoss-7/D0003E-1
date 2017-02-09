@@ -39,7 +39,7 @@ void writeChar(char ch, int pos) {
 	// decides which mask is used depending on if the desired position is even or not
 	if (pos % 2 == 0) {
 		mask = 0xF0;
-		} else {
+	} else {
 		mask = 0x0F;
 	}
 	
