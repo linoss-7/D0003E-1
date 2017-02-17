@@ -12,7 +12,9 @@
 #include <avr/interrupt.h>
 
 int pp; // global variable
-mutex currentmutex = MUTEX_INIT; // initializes mutex
+long buttonCount = 0;
+mutex blinkMutex = MUTEX_INIT;
+mutex buttonMutex = MUTEX_INIT;
 
 void writeChar(char ch, int pos) {
 	// Writes a char ch on position pos on the lcd
@@ -79,17 +81,15 @@ int is_prime(long i) {
 }
 
 void printAt(long num, int pos) {
-	lock(&currentmutex);
 	pp = pos;
 	writeChar( (num % 100) / 10 + '0', pp);
 	pp++;
 	writeChar( num % 10 + '0', pp);
-	unlock(&currentmutex);
 }
 
 void computePrimes(int pos) {
 	long n;
-
+	
 	for(n = 1; ; n++) {
 		if (is_prime(n)) {
 			printAt(n, pos);
@@ -97,9 +97,51 @@ void computePrimes(int pos) {
 	}
 }
 
+void blink() {
+	// makes a segment of the lcd blink
+	while (1) {
+		lock(&blinkMutex);
+		if (LCDDR13 != 0) { // if the display is on and we've passed timerValue, turn it off
+			LCDDR13 = 0x0;
+		} else { // if the display is off and we've passed timerValue, turn it on
+			LCDDR13 = 0x1;
+		}
+	}
+}
+
+void button(int pos) {
+	while (1) {
+		lock(&buttonMutex);
+		printAt(buttonCount, pos);
+	}
+}
+
+void timerInit(void) {
+	TCCR1A = (1 << COM1A1) | (1 << COM1A0); // sets OC1A high on compare match
+	TCCR1B = (1 << WGM12) | (1 << CS12) | (1 << CS10); // set the timer to Clear on Timer Compare and set timer prescaler factor to 1024
+	OCR1A = 8000000/2048; // set a suitable value to OCR1A
+	TCNT1 = 0x0; // clears the TCNT1 register
+	TIMSK1 = (1 << OCIE1A); // enables timer output compare A interrupts
+}
+
 
 int main() {
+	timerInit();
 	
-	spawn(computePrimes, 0);
-	computePrimes(3);
+	spawn(blink, 0);
+	spawn(button, 4);
+	computePrimes(0);
+}
+
+ISR(PCINT1_vect){
+	if((PINB >> 7) == 0) {
+		buttonCount++;
+		unlock(&buttonMutex);
+		yield();
+	}
+}
+
+ISR(TIMER1_COMPA_vect) {
+	unlock(&blinkMutex);
+	yield();
 }

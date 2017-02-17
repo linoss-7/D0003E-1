@@ -97,9 +97,39 @@ void computePrimes(int pos) {
 	}
 }
 
+void blink(void) {
+	// makes a segment of the lcd blink
+	while (1) {
+		if (readCounter() >= 20) {
+			resetCounter();
+			if (LCDDR13 != 0) { // if the display is on and we've passed timerValue, turn it off
+				LCDDR13 = 0x0;
+			} else { // if the display is off and we've passed timerValue, turn it on
+				LCDDR13 = 0x1;
+			}
+		}
+	}
+}
+
+void button(int pos) {
+	uint8_t hold = 0;
+	long count = 0;
+	
+	while (1) {
+		if (hold == 0 && PINB >> 7 == 0) {
+			count++;
+			printAt(count, pos);
+			hold = 1;
+		} else if (PINB >> 7 == 1) {
+			hold = 0;
+		}
+	}
+}
+
 
 int main() {
 	
 	spawn(computePrimes, 0);
-	computePrimes(3);
+	spawn(button, 4);
+	blink();
 }

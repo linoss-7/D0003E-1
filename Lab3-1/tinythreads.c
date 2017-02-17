@@ -27,6 +27,15 @@ thread readyQ  = NULL;
 thread current = &initp;
 
 int initialized = 0;
+int timeCounter = 0;
+
+int readCounter(void) {
+	return timeCounter;
+}
+
+void resetCounter(void) {
+	timeCounter = 0;
+}
 
 static void initialize(void) {
 	int i;
@@ -156,5 +165,6 @@ ISR(PCINT1_vect) {
 
 // Defines timer interrupt for TIMER1_COMPA_vect
 ISR(TIMER1_COMPA_vect) {
+	timeCounter += 1;
 	yield();
 }
