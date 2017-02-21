@@ -13,7 +13,7 @@ void increasePulse(PulseGenerator *self, int arg) {
 	if (self->frequency < 99) {
 		if (self->frequency == 0) {
 			self->frequency++;
-			goToPort(self);
+			//goToPort(self);
 		} else {
 			self->frequency++1;
 		}
@@ -36,7 +36,7 @@ void saveState(PulseGenerator *self, int arg) {
 		self->frequency = self->oldFrequency;
 		self->oldFrequency = 0;
 		self->saved = 0;
-		goToPort(self);
+		//goToPort(self);
 	}
 }
 

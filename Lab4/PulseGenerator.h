@@ -12,10 +12,10 @@
 
 typedef struct {
 	Object super;
-	uint8_t bitNumber;
-	uint8_t frequency;
-	uint8_t saved;
-	uint8_t oldFrequency;
+	int bitNumber;
+	int frequency;
+	int saved;
+	int oldFrequency;
 } PulseGenerator;
 
 void increasePulse(PulseGenerator *self, int arg);
