@@ -5,10 +5,10 @@
  *  Author: Robin Andersson
  */ 
 
-#include "TinyTimber.h"
-
 #ifndef PULSEGENERATOR_H_
 #define PULSEGENERATOR_H_
+
+#include "TinyTimber.h"
 
 typedef struct {
 	Object super;
