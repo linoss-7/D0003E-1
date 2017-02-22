@@ -8,52 +8,33 @@
 #include "GUI.h"
 #include <avr/io.h>
 
-void updateLCD(GUI *self) {
-	if (self->currentPulse->bitNumber == 1) {
-		printAt(self->currentPulse->frequency, 0);
-	} else if (self->currentPulse->bitNumber == 2) {
-		printAt(self->currentPulse->frequency, 4);
-	}
-}
-
-void rightSwitch(GUI *self) {
-	if (self->currentPulse->bitNumber == 1) {
-		self->currentPulse = self->g2;
-	}
-}
-
-void leftSwitch(GUI *self) {
-	if (self->currentPulse->bitNumber == 2) {
-		self->currentPulse = self->g1;
-	}
-}
-
-void upSwitch(GUI *self) {
-	increasePulse(self->currentPulse);
-	updateLCD(self);
-}
-
-void downSwitch(GUI *self) {
-	decreasePulse(self->currentPulse);
-	updateLCD(self);
-}
-
-void depressed(GUI *self) {
-	saveState(self->currentPulse);
+void updateLCD(GUI *self, int arg) {
+	printAt(self->currentPulse.frequency, 0);
+	printAt(self->currentPulse.frequency, 4);
 }
 
 void changePortB(GUI *self, int arg) {
-	if (PINB >> 7 == 0) {
-		downSwitch(self);
-	} else if (PINB >> 6 == 0) {
-		upSwitch(self);
-	} 
+	PulseGenerator* currentPulse = &(self->currentPulse);
+	if (PINB >> 7 == 0) {									// down
+		ASYNC(currentPulse, decreasePulse, 0);
+		updateLCD(self, 0);
+	} else if (PINB >> 6 == 0) {							// up
+		ASYNC(currentPulse, increasePulse, 0);
+		updateLCD(self, 0);
+	}  else if (PINB >> 4 == 0) {							// depressed
+		ASYNC(currentPulse, saveState, 0);
+	}
 }
 
 void changePortE(GUI *self, int arg) {
+	PulseGenerator* currentPulse = &(self->currentPulse);
 	if (PINE >> 2 == 0) {
-		leftSwitch(self);
+		if (currentPulse->bitNumber == 2) {
+			self->currentPulse = self->g1;
+		}
 	} else if (PINE >> 3 == 0) {
-		rightSwitch(self);
+		if (currentPulse->bitNumber == 1) {
+			self->currentPulse = self->g2;
+		}
 	}
 }

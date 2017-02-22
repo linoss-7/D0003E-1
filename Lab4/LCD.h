@@ -11,6 +11,7 @@
 
 void writeChar(char ch, int pos);
 void printAt(long num, int pos);
+void change(int pos);
 
 #define initLCD() {initObject()}
 

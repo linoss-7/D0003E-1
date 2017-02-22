@@ -10,6 +10,7 @@
 #include "PulseGenerator.h"
 #include "GUI.h"
 #include "TinyTimber.h"
+#include "LCD.h"
 
 void init(void) {
 	// disables clock prescaler
@@ -33,14 +34,14 @@ void init(void) {
 	LCDCCR = (1 << LCDCC0) | (1 << LCDCC1) | (1 << LCDCC2) | (1 << LCDCC3);
 }
 
-PulseGenerator g1 = initPulseGenerator(1);		//freq, pos, old, saved, gate, whichpulse
-PulseGenerator g2 = initPulseGenerator(2);
+PulseGenerator g1 = initPulseGenerator(1, 0, 0, 0);		//freq, pos, old, saved, gate, whichpulse
+PulseGenerator g2 = initPulseGenerator(2, 0, 0, 0);
 GUI gui = initGUI(&g1, &g1, &g2);
 
 int main(void) {
   init();
   
-  INSTALL(&gui, changePortB, PCINT1_vect);
-  INSTALL(&gui, changePortE, PCINT0_vect);
+  INSTALL(&gui, changePortB, IRQ_PCINT0);
+  INSTALL(&gui, changePortE, IRQ_PCINT1);
 }
 

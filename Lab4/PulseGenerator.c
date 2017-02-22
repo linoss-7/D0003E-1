@@ -15,7 +15,7 @@ void increasePulse(PulseGenerator *self, int arg) {
 			self->frequency++;
 			//goToPort(self);
 		} else {
-			self->frequency++1;
+			self->frequency++;
 		}
 		
 	}
