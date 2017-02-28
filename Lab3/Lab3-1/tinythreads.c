@@ -78,7 +78,7 @@ static void enqueue(thread p, thread *queue) {
 	p->next = NULL;
 	if (*queue == NULL) {
 		*queue = p;
-		} else {
+	} else {
 		thread q = *queue;
 		while (q->next)
 		q = q->next;

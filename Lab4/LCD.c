@@ -5,8 +5,10 @@
  *  Author: Robin Andersson
  */
 
+#include "GUI.h"
 #include "TinyTimber.h"
 #include <avr/io.h> 
+#include <ctype.h>
 
 void writeChar(char ch, int pos) {
 	// Writes a char ch on position pos on the lcd
@@ -20,9 +22,9 @@ void writeChar(char ch, int pos) {
 	// checks if ch is in 0..9
 	if (isdigit(ch)) {
 		number = ch - '0';
-		} else if (ch <= 9 && ch >= 0) {
+	} else if (ch <= 9 && ch >= 0) {
 		number = ch;
-		} else {
+	} else {
 		return;
 	}
 
@@ -56,7 +58,7 @@ void writeChar(char ch, int pos) {
 		}
 
 		// use the nibble and the mask to light the parts that nibble says
-		_SFR_MEM8(lcddr) = (_SFR_MEM8(lcddr) & mask) | nibble;
+		_SFR_MEM8(lcddr) = _SFR_MEM8(lcddr) | ((_SFR_MEM8(lcddr) & mask) | nibble);
 		lcddr += 5;
 	}
 }
@@ -66,4 +68,32 @@ void printAt(long num, int pos) {
 	writeChar( (num % 100) / 10 + '0', pp);
 	pp++;
 	writeChar( num % 10 + '0', pp);
+}
+
+void init(void) {
+	// disables clock prescaler
+	CLKPR = 0x80;
+	CLKPR = 0x00;
+	
+	// enables the logical interrupt sources
+	EIMSK = EIMSK | 0xC0;
+	EIFR = EIFR | 0xC0;
+	PCMSK1 = PCMSK1 | 0xD0;
+	PCMSK0 = PCMSK0 | 0x0C;
+	
+	PORTB = PORTB | 0xD0;			//PORTB = (1 << PORTB7)|(1 << PORTB6)|(1 << PORTB4);
+	PORTE = PORTE | 0x0C;			//PORTE = (1 << PORTE3)|(1 << PORTE2);
+	
+	// LCD enabled, low power waveform, no frame interrupt, no blanking
+	LCDCRA = 0xC0;		// (1 << LCDEN) | (1 << LCDAB);
+	// external asynchronous clock source, 1/3 bias, 1/4 duty cycle, 25 segments enabled
+	LCDCRB = 0xB7;		// (1 << LCDCS) | (1 << LCDMUX0) | (1 << LCDMUX1) | (1 << LCDPM0) | (1 << LCDPM1) | (1 << LCDPM2);
+	// prescaler setting N=16, clock divider setting D=8
+	LCDFRR = 0x07;		// (1 << LCDCD0) | (1 << LCDCD1) | (1 << LCDCD2);
+	// drive time 300 microseconds, contrast control voltage 3.35 V
+	LCDCCR = 0x0F;		// (1 << LCDCC0) | (1 << LCDCC1) | (1 << LCDCC2) | (1 << LCDCC3);
+	
+	LCDDR0 = LCDDR0 | 0x4; // init left pulse
+	
+	TCCR1B = 0x0D;
 }

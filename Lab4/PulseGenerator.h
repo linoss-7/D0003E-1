@@ -12,17 +12,19 @@
 
 typedef struct {
 	Object super;
-	int bitNumber;
+	int portBit;
 	int frequency;
 	int saved;
 	int oldFrequency;
+	int firstPress;
 } PulseGenerator;
 
 void increasePulse(PulseGenerator *self, int arg);
 void decreasePulse(PulseGenerator *self, int arg);
 void saveState(PulseGenerator *self, int arg);
-void goToPort(PulseGenerator *self);
+void goToPort(PulseGenerator *self, int arg);
+void porting(PulseGenerator *self, int arg);
 
-#define initPulseGenerator(number, freq, save, old) {initObject(), number, freq, save, old}
+#define initPulseGenerator(number, freq, save, old, fst) {initObject(), number, freq, save, old, fst}
 
 #endif /* PULSEGENERATOR_H_ */

@@ -15,14 +15,16 @@
 
 typedef struct {
 	Object super;
-	PulseGenerator currentPulse;
-	PulseGenerator g1;
-	PulseGenerator g2;
+	PulseGenerator *currentPulse;
+	PulseGenerator *g1;
+	PulseGenerator *g2;
 } GUI;
 
 void updateLCD(GUI *self, int arg);
-void changePortB(GUI *self, int arg);
-void changePortE(GUI *self, int arg);
+void change(GUI *gui, int pulse);
+int changePortB(GUI *self, int arg);
+int changePortE(GUI *self, int arg);
+void hold(GUI *self, int arg);
 
 #define initGUI(pulse, pg1, pg2) {initObject(), pulse, pg1, pg2}
 

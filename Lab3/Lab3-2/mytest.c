@@ -128,6 +128,9 @@ void timerInit(void) {
 int main() {
 	timerInit();
 	
+	lock(&buttonMutex);
+	lock(&blinkMutex);
+	
 	spawn(blink, 0);
 	spawn(button, 4);
 	computePrimes(0);
