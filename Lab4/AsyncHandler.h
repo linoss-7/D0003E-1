@@ -9,8 +9,8 @@
 #ifndef ASYNCHANDLER_H_
 #define ASYNCHANDLER_H_
 
+#include "PulseGenerator.h"
 
-
-
+void hold(PulseGenerator *self, int arg);
 
 #endif /* ASYNCHANDLER_H_ */

@@ -9,10 +9,22 @@
 #ifndef LCD_H_
 #define LCD_H_
 
-void writeChar(char ch, int pos);
-void printAt(long num, int pos);
-void init(void);
+#include "PulseGenerator.h"
+#include "TinyTimber.h"
 
-// #define initLCD() {initObject()}
+typedef struct {
+	Object super;
+	PulseGenerator *g1;
+	PulseGenerator *g2;
+	int pos;
+} LCD;
+
+void writeChar(char ch, int pos);
+void printAt(int num, int pos);
+void init(void);
+void updateLCD(LCD *self, int arg);
+void change(PulseGenerator *self, int pulse);
+
+#define initLCD(g1, g2, pos) {initObject(), g1, g2, pos}
 
 #endif /* LCD_H_ */

@@ -8,64 +8,35 @@
 #include "GUI.h"
 #include "LCD.h"
 #include "TinyTimber.h"
+#include "AsyncHandler.h"
 #include <avr/io.h>
+#include <avr/iom169p.h>
+#include <avr/interrupt.h>
+#include <avr/portpins.h>
 
-void updateLCD(GUI *self, int arg) {
-	printAt(self->g1->frequency, 0);
-	printAt(self->g2->frequency, 4);
-}
-
-void change(GUI *gui, int pulse) {
-	if (pulse == 1) {
-		LCDDR0 = LCDDR0 | 0x4;
-		LCDDR1 = LCDDR1 ^ 0x2;
-	} else if (pulse == 2) {
-		LCDDR0 = LCDDR0 ^ 0x4;
-		LCDDR1 = LCDDR1 | 0x2;
+int changePortB(GUI *self, int arg) {
+	
+	if (((PINB >> 7) & 1) == 0) {									// down
+		ASYNC(self->currentPulse, hold, 0);
+	} else if (((PINB >> 6) & 1) == 0) {							// up
+		ASYNC(self->currentPulse, hold, 0);
+	}  else if (((PINB >> 4) & 1) == 0) {							// depressed
+		ASYNC(self->currentPulse, saveState, 0);
 	}
-}
-
-int changePortB(GUI *self, int arg) {	
-	if (PINB >> 7 == 0) {									// down
-		ASYNC(self, asyncHold, 0);
-	} else if (PINB >> 6 == 0) {							// up
-		ASYNC(self, asyncHold, 0);
-	}  else if (PINB >> 4 == 0) {							// depressed
-		ASYNC(self, asyncSaveState, 0);
-	}
-	ASYNC(self, asyncUpdateLCD, 0);
+	ASYNC(self->lcd, updateLCD, 0);
 	return 0;
 }
 
 int changePortE(GUI *self, int arg) {
-	int pulse = 0;
-	if (PINE >> 3 == 0) {
+	if (((PINE >> 3) & 1) == 0) {
 		self->currentPulse = self->g2;
-		pulse = 2;
-	} else if (PINE >> 2 == 0) {
+	} else if (((PINE >> 2) & 1) == 0) {
 		self->currentPulse = self->g1;
-		pulse = 1;
 	}
-	ASYNC(self, asyncChange, pulse);
-	ASYNC(self, asyncUpdateLCD, 0);
+	ASYNC(self->currentPulse, change, 0);
+	ASYNC(self->lcd, updateLCD, 0);
 	return 0;
 }
 
-void hold(GUI *self, int arg) {
-	if (self->currentPulse->firstPress) {
-		self->currentPulse->firstPress = 0;
-		AFTER(MSEC(1000), self, asyncHold, 0);
-	}
-	
-	if (PINB >> 6 == 0) {
-		SYNC(self->currentPulse, increasePulse, 0);
-		SYNC(self, updateLCD, 0);
-		AFTER(MSEC(500), self, asyncHold, 0);
-	} else if (PINB >> 4 == 0) {
-		SYNC(self->currentPulse, decreasePulse, 0);
-		SYNC(self, updateLCD, 0);
-		AFTER(MSEC(500), self, asyncHold, 0);
-	}
-}
 
 

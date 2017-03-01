@@ -23,7 +23,6 @@ void increasePulse(PulseGenerator *self, int arg);
 void decreasePulse(PulseGenerator *self, int arg);
 void saveState(PulseGenerator *self, int arg);
 void goToPort(PulseGenerator *self, int arg);
-void porting(PulseGenerator *self, int arg);
 
 #define initPulseGenerator(number, freq, save, old, fst) {initObject(), number, freq, save, old, fst}
 

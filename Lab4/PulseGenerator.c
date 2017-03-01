@@ -7,15 +7,18 @@
 
 #include <avr/io.h>
 #include <avr/iom169p.h>
+#include <avr/portpins.h>
 #include "PulseGenerator.h"
-#include "AsyncHandler.h"
+#include "Port.h"
 	
 void increasePulse(PulseGenerator *self, int arg) {
+	LCDDR13 ^= 1;
 	if (self->frequency < 99) {
 		if (self->frequency == 0) {
 			self->frequency++;
 			goToPort(self, 0);
 		} else {
+			LCDDR3 ^= 1;
 			self->frequency++;
 		}
 		
@@ -43,14 +46,9 @@ void saveState(PulseGenerator *self, int arg) {
 
 void goToPort(PulseGenerator *self, int arg) {
 	if (self->frequency > 0) {
-		ASYNC(self, asyncPorting, 0);
+		SYNC(self, porting, 0);
+		AFTER(MSEC(2000/(self->frequency)), self, porting, 0);
 	}
 }
 
-void porting(PulseGenerator *self, int arg) {
-	if (self->portBit == 4) {
-		PORTE = PORTE ^ 0x10;
-	} else if (self->portBit == 6) {
-		PORTE = PORTE ^ 0x40;
-	}
-}
+

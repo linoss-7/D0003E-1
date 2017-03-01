@@ -5,7 +5,8 @@
  *  Author: Robin Andersson
  */
 
-#include "GUI.h"
+#include "LCD.h"
+#include "PulseGenerator.h"
 #include "TinyTimber.h"
 #include <avr/io.h> 
 #include <ctype.h>
@@ -63,7 +64,7 @@ void writeChar(char ch, int pos) {
 	}
 }
 
-void printAt(long num, int pos) {
+void printAt(int num, int pos) {
 	int pp = pos;
 	writeChar( (num % 100) / 10 + '0', pp);
 	pp++;
@@ -76,13 +77,13 @@ void init(void) {
 	CLKPR = 0x00;
 	
 	// enables the logical interrupt sources
-	EIMSK = EIMSK | 0xC0;
-	EIFR = EIFR | 0xC0;
-	PCMSK1 = PCMSK1 | 0xD0;
-	PCMSK0 = PCMSK0 | 0x0C;
+	EIMSK = 0xC0;
+	EIFR = 0xC0;
+	PCMSK1 = 0xD0;
+	PCMSK0 = 0x0C;
 	
-	PORTB = PORTB | 0xD0;			//PORTB = (1 << PORTB7)|(1 << PORTB6)|(1 << PORTB4);
-	PORTE = PORTE | 0x0C;			//PORTE = (1 << PORTE3)|(1 << PORTE2);
+	PORTB = 0xD0;			//PORTB = (1 << PORTB7)|(1 << PORTB6)|(1 << PORTB4);
+	PORTE = 0x0C;			//PORTE = (1 << PORTE3)|(1 << PORTE2);
 	
 	// LCD enabled, low power waveform, no frame interrupt, no blanking
 	LCDCRA = 0xC0;		// (1 << LCDEN) | (1 << LCDAB);
@@ -93,7 +94,22 @@ void init(void) {
 	// drive time 300 microseconds, contrast control voltage 3.35 V
 	LCDCCR = 0x0F;		// (1 << LCDCC0) | (1 << LCDCC1) | (1 << LCDCC2) | (1 << LCDCC3);
 	
-	LCDDR0 = LCDDR0 | 0x4; // init left pulse
+	LCDDR0 = 0x4; // init left pulse
 	
 	TCCR1B = 0x0D;
+}
+
+void updateLCD(LCD *self, int arg) {
+	printAt(self->g1->frequency, 0);
+	printAt(self->g2->frequency, 4);
+}
+
+void change(PulseGenerator *self, int pulse) {
+	if (self->portBit == 4) {
+		LCDDR0 ^= 0x4;
+		LCDDR1 ^= 0x2;
+	} else if (self->portBit == 6) {
+		LCDDR0 ^= 0x4;
+		LCDDR1 ^= 0x2;
+	}
 }
