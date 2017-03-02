@@ -12,16 +12,13 @@
 #include "Port.h"
 	
 void increasePulse(PulseGenerator *self, int arg) {
-	LCDDR13 ^= 1;
-	if (self->frequency < 99) {
+	if (self->frequency <= 99) {
 		if (self->frequency == 0) {
-			self->frequency++;
+			self->frequency += 1;
 			goToPort(self, 0);
 		} else {
-			LCDDR3 ^= 1;
-			self->frequency++;
+			self->frequency += 1;
 		}
-		
 	}
 }
 
@@ -46,7 +43,7 @@ void saveState(PulseGenerator *self, int arg) {
 
 void goToPort(PulseGenerator *self, int arg) {
 	if (self->frequency > 0) {
-		SYNC(self, porting, 0);
+		SYNC(self->port, porting, self->portBit);
 		AFTER(MSEC(2000/(self->frequency)), self, porting, 0);
 	}
 }

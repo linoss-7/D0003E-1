@@ -11,14 +11,18 @@
 #include "GUI.h"
 #include "TinyTimber.h"
 #include "LCD.h"
+#include "Port.h"
 
-PulseGenerator g1 = initPulseGenerator(4, 0, 0, 0, 1);		//freq, pos, old, saved, gate, whichpulse
-PulseGenerator g2 = initPulseGenerator(6, 0, 0, 0, 1);
-LCD lcd = initLCD(&g1, &g2, 0);
-GUI gui = initGUI(&g1, &g1, &g2, &lcd);
+PORT p = initPORT(1);
+PulseGenerator g1 = initPulseGenerator(4, 0, 0, 0, &p);		//freq, pos, old, saved, gate, whichpulse
+PulseGenerator g2 = initPulseGenerator(6, 0, 0, 0, &p);
+LCD lcd = initLCD(&g1, &g2);
+AsyncHandler ah = initAsyncHandler(&g1, &g1, &g2, &lcd);
+GUI gui = initGUI(&g1, &g1, &g2, &lcd, &ah);
+
 
 int main(void) {
-  init();
+  init(&lcd, 0);
   
   INSTALL(&gui, changePortE, IRQ_PCINT0);
   INSTALL(&gui, changePortB, IRQ_PCINT1);

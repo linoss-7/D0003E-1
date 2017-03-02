@@ -11,7 +11,7 @@
 #include <avr/io.h> 
 #include <ctype.h>
 
-void writeChar(char ch, int pos) {
+void writeChar(LCD *self, char ch, int pos) {
 	// Writes a char ch on position pos on the lcd
 	char mask = 0x00;
 	char lcddr = 0xEC;
@@ -28,15 +28,18 @@ void writeChar(char ch, int pos) {
 	} else {
 		return;
 	}
-
 	
+	if (ch == 1) {
+		LCDDR13 ^= 1;
+	}
+
 	// get the scc value from our scc table
 	sccChar = SCCTable[number];
 	
 	// decides which mask is used depending on if the desired position is even or not
 	if (pos % 2 == 0) {
 		mask = 0xF0;
-		} else {
+	} else {
 		mask = 0x0F;
 	}
 	
@@ -64,14 +67,14 @@ void writeChar(char ch, int pos) {
 	}
 }
 
-void printAt(int num, int pos) {
+void printAt(LCD *self, int num, int pos) {
 	int pp = pos;
-	writeChar( (num % 100) / 10 + '0', pp);
+	writeChar(self, (num % 100) / 10 + '0', pp);
 	pp++;
-	writeChar( num % 10 + '0', pp);
+	writeChar(self, num % 10 + '0', pp);
 }
 
-void init(void) {
+void init(LCD *self, int arg) {
 	// disables clock prescaler
 	CLKPR = 0x80;
 	CLKPR = 0x00;
@@ -96,20 +99,20 @@ void init(void) {
 	
 	LCDDR0 = 0x4; // init left pulse
 	
-	TCCR1B = 0x0D;
+	//TCCR1B = 0x0D;
 }
 
 void updateLCD(LCD *self, int arg) {
-	printAt(self->g1->frequency, 0);
-	printAt(self->g2->frequency, 4);
+	printAt(self, self->g1->frequency, 0);
+	printAt(self, self->g2->frequency, 4);
 }
 
-void change(PulseGenerator *self, int pulse) {
-	if (self->portBit == 4) {
-		LCDDR0 ^= 0x4;
-		LCDDR1 ^= 0x2;
-	} else if (self->portBit == 6) {
-		LCDDR0 ^= 0x4;
-		LCDDR1 ^= 0x2;
+void change(LCD *self, int pulse) {
+	if (pulse == 4) {
+		LCDDR0 = 0x4;
+		LCDDR1 &= 0xFD;
+	} else if (pulse == 6) {
+		LCDDR0 &= 0xFB;
+		LCDDR1 = 0x2;
 	}
 }

@@ -10,7 +10,19 @@
 #define ASYNCHANDLER_H_
 
 #include "PulseGenerator.h"
+#include "LCD.h"
 
-void hold(PulseGenerator *self, int arg);
+typedef struct {
+	Object super;
+	PulseGenerator *currentPulse;
+	PulseGenerator *g1;
+	PulseGenerator *g2;
+	LCD *lcd;
+	int firstPress;
+} AsyncHandler;
+
+void hold(AsyncHandler *self, int arg);
+
+#define initAsyncHandler(pulse, g1, g2, lcd) {initObject(), pulse, g1, g2, lcd}
 
 #endif /* ASYNCHANDLER_H_ */

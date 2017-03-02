@@ -10,10 +10,10 @@
 #include "Port.h"
 #include <avr/io.h>
 
-void porting(PulseGenerator *self, int arg) {
-	if (self->portBit == 4) {
+void porting(PORT *self, int portBit) {
+	if (portBit == 4) {
 		PORTE ^= 0x10;
-		} else if (self->portBit == 6) {
+	} else if (portBit == 6) {
 		PORTE ^= 0x40;
 	}
 }

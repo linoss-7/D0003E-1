@@ -12,6 +12,7 @@
 #include "TinyTimber.h"
 #include "PulseGenerator.h"
 #include "LCD.h"
+#include "AsyncHandler.h"
 
 typedef struct {
 	Object super;
@@ -19,11 +20,12 @@ typedef struct {
 	PulseGenerator *g1;
 	PulseGenerator *g2;
 	LCD *lcd;
+	AsyncHandler *ah;
 } GUI;
 
 int changePortB(GUI *self, int arg);
 int changePortE(GUI *self, int arg);
 
-#define initGUI(pulse, pg1, pg2, lcd) {initObject(), pulse, pg1, pg2, lcd}
+#define initGUI(pulse, pg1, pg2, lcd, ah) {initObject(), pulse, pg1, pg2, lcd, ah}
 
 #endif /* GUI_H_ */
