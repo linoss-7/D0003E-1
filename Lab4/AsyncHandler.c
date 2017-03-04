@@ -12,18 +12,18 @@
 #include <avr/io.h>
 
 void hold(AsyncHandler *self, int arg) {
-	if (self->firstPress) {
-		self->firstPress = 0;
-		AFTER(MSEC(1000), self, hold, 0);
-	}
-	
-	if (((PINB >> 6) & 1) == 0) {
-		SYNC(self->currentPulse, increasePulse, 0);
+	if (self->held == 0) {
+		self->held = 1;
+		AFTER(MSEC(200), self, hold, 0);
+	} else if (((PINB >> 6) & 1) == 0) {
+		SYNC(self->lcd->currentPulse, increasePulse, 0);
 		SYNC(self->lcd, updateLCD, 0);
-		AFTER(MSEC(500), self, hold, 0);
+		AFTER(MSEC(200), self, hold, 0);
 	} else if (((PINB >> 7) & 1) == 0) {
-		SYNC(self->currentPulse, decreasePulse, 0);
+		SYNC(self->lcd->currentPulse, decreasePulse, 0);
 		SYNC(self->lcd, updateLCD, 0);
-		AFTER(MSEC(500), self, hold, 0);
+		AFTER(MSEC(200), self, hold, 0);
+	} else {
+		self->held = 0;
 	}
 }

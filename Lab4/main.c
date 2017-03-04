@@ -14,15 +14,15 @@
 #include "Port.h"
 
 PORT p = initPORT(1);
-PulseGenerator g1 = initPulseGenerator(4, 0, 0, 0, &p);		//freq, pos, old, saved, gate, whichpulse
+PulseGenerator g1 = initPulseGenerator(4, 0, 0, 0, &p);	
 PulseGenerator g2 = initPulseGenerator(6, 0, 0, 0, &p);
-LCD lcd = initLCD(&g1, &g2);
-AsyncHandler ah = initAsyncHandler(&g1, &g1, &g2, &lcd);
-GUI gui = initGUI(&g1, &g1, &g2, &lcd, &ah);
+LCD lcd = initLCD(&g1, &g2, &g1);
+AsyncHandler ah = initAsyncHandler(&lcd);
+GUI gui = initGUI(&lcd, &ah);
 
 
 int main(void) {
-  init(&lcd, 0);
+  init(0);
   
   INSTALL(&gui, changePortE, IRQ_PCINT0);
   INSTALL(&gui, changePortB, IRQ_PCINT1);

@@ -14,31 +14,29 @@
 #include <avr/interrupt.h>
 #include <avr/portpins.h>
 
-int changePortB(GUI *self, int arg) {	
-	self->ah->firstPress = 1;
-	
-	if (((PINB >> 7) & 1) == 0) {									// down
+void changePortB(GUI *self, int arg) {	
+	if (((PINB >> 7) & 1) == 0 && !self->ah->held) {									// down
+		ASYNC(self->lcd->currentPulse, decreasePulse, 0);
+		ASYNC(self->lcd, updateLCD, 0);
 		ASYNC(self->ah, hold, 0);
-	} else if (((PINB >> 6) & 1) == 0) {							// up
+	} else if (((PINB >> 6) & 1) == 0 && !self->ah->held) {							// up
+		ASYNC(self->lcd->currentPulse, increasePulse, 0);
+		ASYNC(self->lcd, updateLCD, 0);
 		ASYNC(self->ah, hold, 0);
-	}  else if (((PINB >> 4) & 1) == 0) {							// depressed
-		ASYNC(self->currentPulse, saveState, 0);
+	}  else if (((PINB >> 4) & 1) == 0) {												// depressed
+		ASYNC(self->lcd->currentPulse, saveState, 0);
 		ASYNC(self->lcd, updateLCD, 0);
 	}
-	return 0;
 }
 
-int changePortE(GUI *self, int arg) {
+void changePortE(GUI *self, int arg) {
 	if (((PINE >> 3) & 1) == 0) {
-		self->currentPulse = self->g2;
 		ASYNC(self->lcd, change, 6);
+		ASYNC(self->lcd, updateLCD, 0);
 	} else if (((PINE >> 2) & 1) == 0) {
-		self->currentPulse = self->g1;
 		ASYNC(self->lcd, change, 4);
+		ASYNC(self->lcd, updateLCD, 0);
 	}
-	self->ah->currentPulse = self->currentPulse;
-	ASYNC(self->lcd, updateLCD, 0);
-	return 0;
 }
 
 

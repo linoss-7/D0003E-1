@@ -16,16 +16,13 @@
 
 typedef struct {
 	Object super;
-	PulseGenerator *currentPulse;
-	PulseGenerator *g1;
-	PulseGenerator *g2;
 	LCD *lcd;
 	AsyncHandler *ah;
 } GUI;
 
-int changePortB(GUI *self, int arg);
-int changePortE(GUI *self, int arg);
+void changePortB(GUI *self, int arg);
+void changePortE(GUI *self, int arg);
 
-#define initGUI(pulse, pg1, pg2, lcd, ah) {initObject(), pulse, pg1, pg2, lcd, ah}
+#define initGUI(lcd, ah) {initObject(), lcd, ah}
 
 #endif /* GUI_H_ */

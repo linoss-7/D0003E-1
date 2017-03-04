@@ -14,15 +14,12 @@
 
 typedef struct {
 	Object super;
-	PulseGenerator *currentPulse;
-	PulseGenerator *g1;
-	PulseGenerator *g2;
 	LCD *lcd;
-	int firstPress;
+	int held;
 } AsyncHandler;
 
 void hold(AsyncHandler *self, int arg);
 
-#define initAsyncHandler(pulse, g1, g2, lcd) {initObject(), pulse, g1, g2, lcd}
+#define initAsyncHandler(lcd) {initObject(), lcd}
 
 #endif /* ASYNCHANDLER_H_ */

@@ -16,14 +16,15 @@ typedef struct {
 	Object super;
 	PulseGenerator *g1;
 	PulseGenerator *g2;
+	PulseGenerator *currentPulse;
 } LCD;
 
-void writeChar(LCD *self, char ch, int pos);
-void printAt(LCD *self, int num, int pos);
-void init(LCD *self, int arg);
+void writeChar(char ch, int pos);
+void printAt(long num, int pos);
+void init(int arg);
 void updateLCD(LCD *self, int arg);
 void change(LCD *self, int pulse);
 
-#define initLCD(pg1, pg2) {initObject(), pg1, pg2}
+#define initLCD(pg1, pg2, curr) {initObject(), pg1, pg2, curr}
 
 #endif /* LCD_H_ */
