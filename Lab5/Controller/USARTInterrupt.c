@@ -9,5 +9,5 @@
 
 void receivedUSART(USART *self){
 	uint8_t Data = UDR0;
-	ASYNC(self->cont, bitwiseUSART, Data);
+	ASYNC(self->cont, bitUSART, Data);
 }

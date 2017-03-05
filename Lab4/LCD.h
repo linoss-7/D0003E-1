@@ -21,7 +21,7 @@ typedef struct {
 
 void writeChar(char ch, int pos);
 void printAt(long num, int pos);
-void init(int arg);
+void init(void);
 void updateLCD(LCD *self, int arg);
 void change(LCD *self, int pulse);
 

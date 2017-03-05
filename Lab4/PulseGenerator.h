@@ -24,7 +24,6 @@ void increasePulse(PulseGenerator *self, int arg);
 void decreasePulse(PulseGenerator *self, int arg);
 void saveState(PulseGenerator *self, int arg);
 void goToPort(PulseGenerator *self, int arg);
-int getId(PulseGenerator *self, int arg);
 
 #define initPulseGenerator(number, freq, save, old, port) {initObject(), number, freq, save, old, port}
 

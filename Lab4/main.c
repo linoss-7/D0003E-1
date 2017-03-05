@@ -22,7 +22,7 @@ GUI gui = initGUI(&lcd, &ah);
 
 
 int main(void) {
-  init(0);
+  init();
   
   INSTALL(&gui, changePortE, IRQ_PCINT0);
   INSTALL(&gui, changePortB, IRQ_PCINT1);

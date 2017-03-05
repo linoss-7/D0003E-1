@@ -5,6 +5,7 @@
  * Author : Robin Andersson
  */ 
 
+
 #include <stdio.h>
 #include <termios.h>
 #include <fcntl.h>
@@ -17,6 +18,8 @@
 
 #define SERIAL_PORT "/dev/ttyS0"
 
+int COM1;
+COM1 = open("/dev/ttyS0", O_RDWR); // open com port
 int openserialport();
 void serialWrite(uint8_t);
 int serialread();
@@ -52,13 +55,52 @@ int main(void) {
 	input();
 }
 
+void input(void) {
+	fd_set rfds;
+	FD_SET(0, &rfds); // include keyboard
+	
+	
+	if(FD_ISSET(0, &rfds)) {
+	
+	} // ??
+		
+	while (1) {
+		char ch = getchar();
+		
+		if (ch == 'a') {
+			serialWrite(0x1);
+			northCars++;
+		} else if (ch == 'd') {
+			serialWrite(0x4);
+			southCars++;
+		}
+	}
+}
+
 void *Bridge(void *a) {
 	while (1) {
-		while (greenNorth == 1 && redSouth == 1) {
+		while (greenNorth == 1) {
 			northCars--;
 			serialWrite(0x2)
-			usleep(10000000);
+			usleep(1000000);
 		} 
+		
+		if (redSouth == 0) {
+			usleep(5000000);
+		} 
+		
+		while (greenSouth == 1) {
+			southCars--;
+			serialWrite(0x8);
+			usleep(1000000);
+		}
+		
+		if (redNorth == 0) {
+			usleep(5000000);
+		}
+		
+		fflush(stdin);
+		
 	}
 }
 

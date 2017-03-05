@@ -44,7 +44,7 @@ void bitUSART(Controller *self, uint8_t data) {
 		self->southQueue++;
 		SYNC(self, trafficLights, 0);
 		SYNC(self, updateStatus, 1);
-	} else if (((data >> 23) & 1) == 1) {	// Southbound bridge entry sensor activated
+	} else if (((data >> 3) & 1) == 1) {	// Southbound bridge entry sensor activated
 		if (self->southQueue > 0) {
 			self->southQueue--;
 		}

@@ -14,7 +14,7 @@
 void hold(AsyncHandler *self, int arg) {
 	if (self->held == 0) {
 		self->held = 1;
-		AFTER(MSEC(200), self, hold, 0);
+		AFTER(MSEC(500), self, hold, 0);
 	} else if (((PINB >> 6) & 1) == 0) {
 		SYNC(self->lcd->currentPulse, increasePulse, 0);
 		SYNC(self->lcd, updateLCD, 0);
