@@ -45,7 +45,7 @@ void goToPort(PulseGenerator *self, int arg) {
 	if (self->frequency > 0) {
 		SYNC(self->port, porting, self->portBit);
 		AFTER((MSEC(4000)/self->frequency), self, goToPort, 0);
-	}
+	} 
 }
 
 
