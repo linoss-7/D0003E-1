@@ -8,6 +8,7 @@
 #include "Controller.h"
 #include "LCD.h"
 #include "TinyTimber.h"
+#include "avr/io.h"
 
 
 void trafficLights(Controller *self, int arg) {
@@ -28,7 +29,7 @@ void trafficLights(Controller *self, int arg) {
 
 
 void bitUSART(Controller *self, uint8_t data) {
-	SYNC(self->lcd, updateSouth, data);
+	SYNC(self, updateSouth, data);
 	
 	if ((data & 1) == 1) {					// Northbound car arrival sensor activated
 		self->northQueue++;
@@ -54,6 +55,6 @@ void bitUSART(Controller *self, uint8_t data) {
 }
 
 void sendToSimulator(Controller *self, uint8_t data) {
-	SYNC(self->lcd, updateNorth, data);
+	SYNC(self, updateNorth, data);
 	UDR0 = data;
 }

@@ -98,11 +98,11 @@ void init() {
 
 }
 
-void updateNorth(LCD *self, int data) {
+void updateNorth(Controller *self, int data) {
 	printAt(data, 0);
 }
 
-void updateSouth(LCD *self, int data) {
+void updateSouth(Controller *self, int data) {
 	printAt(data, 4);
 }
 
@@ -113,7 +113,11 @@ void updateStatus(Controller *self, int whichInterrupt) {
 	} else if (whichInterrupt == 1) {
 		LCDDR16 &= 0xE;
 		LCDDR17 |= 0x10;
-	} else if (whichInterrupt == 2) {
+	} 
+	
+	/*
+	else if (whichInterrupt == 2) {
 		LCDDR2 |= 0x4F;
 	} 
+	*/
 }

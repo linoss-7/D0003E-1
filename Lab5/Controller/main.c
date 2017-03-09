@@ -11,14 +11,13 @@
 #include "USARTInterrupt.h"
 #include "LCD.h"
 
-LCD lcd = initLCD();
-Controller controller = initController(&lcd, 0, 0, 0);
+Controller controller = initController(0, 0, 0);
 USART usart = initUSARTInterrupt(&controller);
 
 int main(void) {
    init();
    
    INSTALL(&usart, receivedUSART, IRQ_USART0_RX);
-   return TINYTIMBER(&lcd, updateNorth, 0);
+   return TINYTIMBER(&controller, updateNorth, 0);
 }
 

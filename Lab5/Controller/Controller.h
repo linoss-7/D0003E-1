@@ -10,11 +10,10 @@
 #define CONTROLLER_H_
 
 #include "TinyTimber.h"
-#include "LCD.h"
+#include "avr/io.h"
 
 typedef struct{
 	Object super;
-	LCD *lcd;
 	int northQueue;
 	int southQueue;
 	int previousQueue;
@@ -24,6 +23,6 @@ void trafficLights(Controller *self, int arg);
 void bitUSART(Controller *self, uint8_t data);
 void sendToSimulator(Controller *self, uint8_t data);
 
-#define initController(lcd, north, south, prev) {lcd, north, south, prev}
+#define initController(north, south, prev) {north, south, prev}
 
 #endif /* CONTROLLER_H_ */

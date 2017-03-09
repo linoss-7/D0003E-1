@@ -10,18 +10,15 @@
 #define LCD_H_
 
 #include "TinyTimber.h"
-
-typedef struct {
-	Object super;
-} LCD;
+#include "Controller.h"
+#include <avr/io.h>
 
 void writeChar(char ch, int pos);
 void printAt(long num, int pos);
 void init();
-void updateNorth(LCD *self, int data);
-void updateSouth(LCD *self, int data);
+void updateNorth(Controller *self, int data);
+void updateSouth(Controller *self, int data);
 void updateStatus(Controller *self, int whichInterrupt);
 
-#define initLCD() {initObject()}
 
 #endif /* LCD_H_ */
