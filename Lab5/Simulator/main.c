@@ -65,8 +65,10 @@ void openserialport(void) {
 		printf("Error2\n");
 		exit(-1);
 	}
-	tcflush(COM1, TCIFLUSH);
-	tty.c_cflag = B9600 | CS8 | CSTOPB | CREAD | CLOCAL | HUPCL | INPCK;
+	tcflush(COM1, TCIFLUSH); //Flush COM1, Flush recieved data
+	//Baud rate = 9600 | Character size mask 8 | Set two stop bits rather than one | Enable receiver | Ignore modem control lines | Lower modem control lines after last process closes the device (hang up) | Enable input parity checking
+	tty.c_cflag = B9600 | CS8 | CSTOPB | CREAD | CLOCAL | HUPCL | INPCK;  
+	// Echo input characters | echo the NL character even if ECHO is not set
 	tty.c_lflag &= ~(ECHO | ECHONL | ICANON);
 	tty.c_cc[VTIME] = 10;
 	tty.c_cc[VMIN] = 1;
