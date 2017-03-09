@@ -27,6 +27,34 @@ void trafficLights(Controller *self, int arg) {
 	}
 }
 
+/*
+void trafficLights(Controller *self, int arg) {
+	if (self->northQueue == 0 && self->southQueue == 0) {
+		ASYNC(self, sendToSimulator, 0xA);
+	} else if (self->northQueue > 0 && self->southQueue == 0) {
+		ASYNC(self, sendToSimulator, 0x9);
+	} else if (self->northQueue == 0 && self->southQueue > 0) {
+		ASYNC(self, sendToSimulator, 0x6);
+	} else if (self->northUsed > 0 && self->northQueue > 0) {
+		self->northUsed--;
+		ASYNC(self, sendToSimulator, 0x9);
+	} else if (self->southUsed > 0 && self->southQueue > 0) {
+		self->southUsed--;
+		ASYNC(self, sendToSimulator, 0x6);
+	} else if (self->southUsed == 0 && self->northUsed == 0) {
+		if (self->northQueue > 0) {
+			self->southUsed = 5;
+			self->northUsed = 4;
+			ASYNC(self, sendToSimulator, 0x9);
+		} else if (self->southQueue > 0) {
+			self->southUsed = 4;
+			self->northUsed = 5;
+			ASYNC(self, sendToSimulator, 0x6);
+		}
+		
+	}
+}
+*/
 
 void bitUSART(Controller *self, uint8_t data) {
 	SYNC(self, updateSouth, data);
