@@ -20,4 +20,3 @@ int main(void) {
    INSTALL(&usart, receivedUSART, IRQ_USART0_RX);
    return TINYTIMBER(&controller, updateNorth, 0);
 }
-

@@ -13,8 +13,6 @@
 #include "TinyTimber.h"
 #include "avr/io.h"
 
-
-
 typedef struct{
 	Object super;
 	Controller *controller;

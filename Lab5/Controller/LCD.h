@@ -18,7 +18,6 @@ void printAt(long num, int pos);
 void init();
 void updateNorth(Controller *self, int data);
 void updateSouth(Controller *self, int data);
-void updateStatus(Controller *self, int whichInterrupt);
 
 
 #endif /* LCD_H_ */

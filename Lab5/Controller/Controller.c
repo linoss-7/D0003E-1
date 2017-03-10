@@ -11,23 +11,7 @@
 #include "avr/io.h"
 
 
-void trafficLights(Controller *self, int arg) {
-	if (self->northQueue == 0 && self->southQueue == 0) {
-		SYNC(self, sendToSimulator, 0xA);
-	} else if (self->northQueue > 0 && self->southQueue == 0) {
-		SYNC(self, sendToSimulator, 0x9);
-	} else if (self->northQueue == 0 && self->southQueue > 0) {
-		SYNC(self, sendToSimulator, 0x6);
-	} else if (self->previousQueue == 0) {
-		self->previousQueue = 1;
-		SYNC(self, sendToSimulator, 0x6);
-	} else if (self->previousQueue == 1) {
-		self->previousQueue = 0;
-		SYNC(self, sendToSimulator, 0x9);
-	}
-}
 
-/*
 void trafficLights(Controller *self, int arg) {
 	if (self->northQueue == 0 && self->southQueue == 0) {
 		ASYNC(self, sendToSimulator, 0xA);
@@ -35,54 +19,39 @@ void trafficLights(Controller *self, int arg) {
 		ASYNC(self, sendToSimulator, 0x9);
 	} else if (self->northQueue == 0 && self->southQueue > 0) {
 		ASYNC(self, sendToSimulator, 0x6);
-	} else if (self->northUsed > 0 && self->northQueue > 0) {
-		self->northUsed--;
-		ASYNC(self, sendToSimulator, 0x9);
-	} else if (self->southUsed > 0 && self->southQueue > 0) {
-		self->southUsed--;
+	} else if (self->previousQueue == 0) {
+		self->previousQueue = 1;
 		ASYNC(self, sendToSimulator, 0x6);
-	} else if (self->southUsed == 0 && self->northUsed == 0) {
-		if (self->northQueue > 0) {
-			self->southUsed = 5;
-			self->northUsed = 4;
-			ASYNC(self, sendToSimulator, 0x9);
-		} else if (self->southQueue > 0) {
-			self->southUsed = 4;
-			self->northUsed = 5;
-			ASYNC(self, sendToSimulator, 0x6);
-		}
-		
+	} else if (self->previousQueue == 1) {
+		self->previousQueue = 0;
+		ASYNC(self, sendToSimulator, 0x9);
 	}
 }
-*/
+
 
 void bitUSART(Controller *self, uint8_t data) {
-	SYNC(self, updateSouth, data);
+	ASYNC(self, updateSouth, data); // show instruction from pc
 	
 	if ((data & 1) == 1) {					// Northbound car arrival sensor activated
 		self->northQueue++;
-		SYNC(self, trafficLights, 0);
-		SYNC(self, updateStatus, 0);
+		ASYNC(self, trafficLights, 0);
 	} else if (((data >> 1) & 1) == 1) {	// Northbound bridge entry sensor activated
 		if (self->northQueue > 0) {
 			self->northQueue--;
 		}
-		SYNC(self, trafficLights, 0);
-		SYNC(self, updateStatus, 0);
+		ASYNC(self, trafficLights, 0);
 	} else if (((data >> 2) & 1) == 1) {	// Southbound car arrival sensor activated
 		self->southQueue++;
-		SYNC(self, trafficLights, 0);
-		SYNC(self, updateStatus, 1);
+		ASYNC(self, trafficLights, 0);
 	} else if (((data >> 3) & 1) == 1) {	// Southbound bridge entry sensor activated
 		if (self->southQueue > 0) {
 			self->southQueue--;
 		}
-		SYNC(self, trafficLights, 0);
-		SYNC(self, updateStatus, 1);
+		ASYNC(self, trafficLights, 0);
 	}
 }
 
 void sendToSimulator(Controller *self, uint8_t data) {
-	SYNC(self, updateNorth, data);
-	UDR0 = data;
+	ASYNC(self, updateNorth, data); // show instruction from avr
+	UDR0 = data;	// send instruction to pc
 }

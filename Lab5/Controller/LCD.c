@@ -105,19 +105,3 @@ void updateNorth(Controller *self, int data) {
 void updateSouth(Controller *self, int data) {
 	printAt(data, 4);
 }
-
-void updateStatus(Controller *self, int whichInterrupt) {
-	if (whichInterrupt == 0) {
-		LCDDR16 |= 0x01;
-		LCDDR17 &= 0xEF;
-	} else if (whichInterrupt == 1) {
-		LCDDR16 &= 0xE;
-		LCDDR17 |= 0x10;
-	} 
-	
-	/*
-	else if (whichInterrupt == 2) {
-		LCDDR2 |= 0x4F;
-	} 
-	*/
-}
